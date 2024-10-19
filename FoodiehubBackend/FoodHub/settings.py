@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',  # For handling cross-origin requests
     'core',
+    'Blog',
 ]
 
 MIDDLEWARE = [
