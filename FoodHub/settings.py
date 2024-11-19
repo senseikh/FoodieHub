@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +30,22 @@ SECRET_KEY = 'django-insecure-9!q5fc+$lxfn&^4ix+-9%7-+9d+ilmol%t27zv5569%46^_bo#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
 
 
 # Application definition
@@ -39,8 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',  # For handling cross-origin requests
-    'core',
-    'Blog',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -54,15 +73,6 @@ MIDDLEWARE = [
 
     'corsheaders.middleware.CorsMiddleware',
 ]
-
-
-
-CORS_ALLOWED_ORIGINS = [
-   "http://localhost:5173",  # Frontend port
-]
-
-AUTH_USER_MODEL = 'core.User'
-
 
 ROOT_URLCONF = 'FoodHub.urls'
 
@@ -136,3 +146,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# # security setting 
+# CSRF_COOKIE_SAMESITE = 'strict'
+# SESSION_COOKIE_SAMESITE = 'strict'
+# CSRF_COOKIE_HTTPONLY = False
+# SESSION_COOKIE_HTTPONLY = True
+# # For production
+# CSRF_COOKIE_HTTPONLY = True
+# SESSION_COOKIE_HTTPONLY = True
+
+CORS_ALLOWED_ORIGINS = [
+   "http://localhost:5173",  # Frontend port
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True
