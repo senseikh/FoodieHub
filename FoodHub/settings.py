@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+import dj_database_url
 import os
 
 load_dotenv()
@@ -99,14 +100,20 @@ WSGI_APPLICATION = 'FoodHub.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PWD'),
-        'HOST': os.getenv('Db_HOST'),
-        'PORT': os.getenv('DB_PORT')
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.getenv('DB_NAME'),
+    #     'USER': os.getenv('DB_USER'),
+    #     'PASSWORD': os.getenv('DB_PWD'),
+    #     'HOST': os.getenv('Db_HOST'),
+    #     'PORT': os.getenv('DB_PORT')
+    # }
+
+    'default': dj_database_url.config(
+        default='postgresql://recipedb_x74k_user:bX6aDPapIrFUkSErgvUNPS4AgR8DJj6M@dpg-cu2j3ndds78s73dtugm0-a.oregon-postgres.render.com/recipedb_x74k',
+
+    )
+    
 }
 
 
