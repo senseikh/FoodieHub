@@ -173,7 +173,7 @@ CORS_ALLOWED_ORIGINS = [
    "http://localhost:5173",  # Frontend port
 ]
 
-ALLOWED_HOSTS = ['https://foodiehub-727v.onrender.com', 'localhost' ,'127.0.0.1']
+ALLOWED_HOSTS = ['https://foodiehub-727v.onrender.com', 'localhost']
 
 CORS_ALLOW_ALL_ORIGINS = True
 
