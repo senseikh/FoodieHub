@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',  # For handling cross-origin requests
     'api',
+    # 'drf-spectacular',
 ]
 
 MIDDLEWARE = [
@@ -170,11 +171,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # SESSION_COOKIE_HTTPONLY = True
 
 CORS_ALLOWED_ORIGINS = [
-   "http://localhost:5173",  # Frontend port
+    "http://localhost:5173",  
+    "http://localhost:5174",
+    "https://foodhub-156e0.web.app",
 ]
 
-ALLOWED_HOSTS = ['https://foodiehub-727v.onrender.com', 'localhost']
+# REST_FRAMEWORK = {'DEFAULT_SCHEMA_CLASS':'drf-spectacular.openapi.AutoSchema'}
+
+# SPECTACULAR_SETTINGS = {"TITLE":"Foodie Hub Documentation"}
+
+ALLOWED_HOSTS = ['foodiehub-727v.onrender.com', 'localhost', '127.0.0.1']
+
 
 CORS_ALLOW_ALL_ORIGINS = True
+
 
 CORS_ALLOW_CREDENTIALS = True
