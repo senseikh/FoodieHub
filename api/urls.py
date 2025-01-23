@@ -11,6 +11,8 @@ from .views import (
     TagDetailView,
     CommentListCreateView,
     CommentDeleteView,
+    RecipeDetailView,
+    RecipeUpdateView,
 )
 
 urlpatterns = [
@@ -24,4 +26,6 @@ urlpatterns = [
     path("tags/<int:pk>/", TagDetailView.as_view(), name="tag_detail"),
     path("recipes/<int:recipe_id>/comments/", CommentListCreateView.as_view(), name="list_create_comments"),
     path("comments/<int:pk>/delete/", CommentDeleteView.as_view(), name="delete_comment"),
+    path("recipes/<int:pk>/", RecipeDetailView.as_view(), name="recipe_detail"),
+    path("recipes/<int:pk>/update/", RecipeUpdateView.as_view(), name="recipe_update"),
 ]

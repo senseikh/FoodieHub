@@ -46,6 +46,23 @@ class RecipeListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = Recipes.objects.all()
 
+class RecipeDetailView(generics.RetrieveAPIView):
+    serializer_class = RecipeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Recipes.objects.filter(author=user)
+
+
+class RecipeUpdateView(generics.UpdateAPIView):
+    serializer_class = RecipeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Recipes.objects.filter(author=user)
+
 
 # Category views
 class CategoryListCreateView(generics.ListCreateAPIView):
