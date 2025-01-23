@@ -59,3 +59,4 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipes
         fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'image', 'category', 'tags', 'comments']
         extra_kwargs = {"author": {"read_only": True}}
+        read_only_fields = ['author']

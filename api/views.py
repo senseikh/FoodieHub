@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import (
     UserSerializer,
     RecipeSerializer,
@@ -56,13 +57,18 @@ class AdminLoginView(APIView):
 class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)  # Important for file uploads
 
     def get_queryset(self):
         user = self.request.user
         return Recipes.objects.filter(author=user)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        # Check if an image was uploaded
+        image = self.request.data.get('image')
+        
+        # Save the recipe with the author and optional image
+        serializer.save(author=self.request.user, image=image)
 
 
 class RecipeDelete(generics.DestroyAPIView):
