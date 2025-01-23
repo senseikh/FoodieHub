@@ -60,3 +60,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'image', 'category', 'tags', 'comments']
         extra_kwargs = {"author": {"read_only": True}}
         read_only_fields = ['author']
+    def get_image(self, obj):
+        if obj.image:
+            return self.context['request'].build_absolute_uri(obj.image.url)
+        return None

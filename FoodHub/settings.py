@@ -118,10 +118,11 @@ DATABASES = {
     
 }
 
-# Media settings
-MEDIA_URL = '/media/'  # URL to access the uploaded media
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Folder where files will be saved
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Media settings
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
