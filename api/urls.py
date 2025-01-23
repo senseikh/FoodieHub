@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import (
     CreateUserView,
     CreateRecipeView,
@@ -35,4 +37,4 @@ urlpatterns = [
     path("recipes/<int:recipe_id>/comments/", CommentListCreateView.as_view(), name="list_create_comments"),
     path("comments/<int:pk>/delete/", CommentDeleteView.as_view(), name="delete_comment"),
     
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
