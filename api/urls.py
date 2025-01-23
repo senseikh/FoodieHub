@@ -16,7 +16,13 @@ from .views import (
 )
 
 urlpatterns = [
-    path("users/", CreateUserView.as_view(), name="create_user"),
+
+ # User creation and authentication
+    path("users/", views.CreateUserView.as_view(), name="create_user"),
+    path("login/user/", views.UserLoginView.as_view(), name="user-login"),
+    path("login/admin/", views.AdminLoginView.as_view(), name="admin-login"),
+
+    # Recipe Urls
     path("recipe/", views.CreateRecipeView.as_view(), name="recipe creattion"),
     path("recipe/delete/<int:pk>/", views.RecipeDelete.as_view(), name="Recipe deletion"),
     path("recipes/<int:pk>/", RecipeDetailView.as_view(), name="recipe_detail"),

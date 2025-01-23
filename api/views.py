@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics
+from rest_framework import generics,status
+from django.contrib.auth import authenticate, login
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import (
     UserSerializer,
@@ -18,6 +21,36 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+
+class UserLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            if not user.is_staff:  # Ensure it's not an admin
+                login(request, user)
+                return Response({"message": "User logged in successfully"}, status=status.HTTP_200_OK)
+            return Response({"error": "Admin accounts cannot log in here"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+class AdminLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            if user.is_staff:  # Ensure it's an admin
+                login(request, user)
+                return Response({"message": "Admin logged in successfully"}, status=status.HTTP_200_OK)
+            return Response({"error": "Only admins can log in here"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 # Recipe views
 class CreateRecipeView(generics.ListCreateAPIView):
