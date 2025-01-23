@@ -112,7 +112,7 @@ DATABASES = {
     # }
 
     'default': dj_database_url.config(
-        default='postgresql://recipedb_x74k_user:bX6aDPapIrFUkSErgvUNPS4AgR8DJj6M@dpg-cu2j3ndds78s73dtugm0-a.oregon-postgres.render.com/recipedb_x74k',
+        default='postgresql://recipedb_8jw3_user:7yKT7NK0EZLDUWn8Pr9NNBjBquhPz6yj@dpg-cu97nmjqf0us73ddbn60-a.oregon-postgres.render.com/recipedb_8jw3',
 
     )
     

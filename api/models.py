@@ -8,7 +8,7 @@ class Recipes(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recipes")
-    image = models.ImageField(upload_to="media/recipes/images", null=True, blank=True)
+    image = models.ImageField(upload_to="recipes/images", null=True, blank=True)
     category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True, blank=True, related_name="recipes")
     tags = models.ManyToManyField("Tag", blank=True, related_name="recipes")
 
