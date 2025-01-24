@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAdminUser
 from .serializers import (
     UserSerializer,
     RecipeSerializer,
@@ -52,6 +53,44 @@ class AdminLoginView(APIView):
                 return Response({"message": "Admin logged in successfully"}, status=status.HTTP_200_OK)
             return Response({"error": "Only admins can log in here"}, status=status.HTTP_403_FORBIDDEN)
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+class AdminDashboardView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        # Fetch admin dashboard data
+        total_recipes = Recipes.objects.count()
+        total_users = User.objects.count()
+        total_categories = Category.objects.count()
+        total_tags = Tag.objects.count()
+
+        return Response({
+            'total_recipes': total_recipes,
+            'total_users': total_users,
+            'total_categories': total_categories,
+            'total_tags': total_tags
+        })
+
+class AdminUserManagementView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        # Fetch all users with their details
+        users = User.objects.all().values('id', 'username', 'email', 'is_active', 'date_joined')
+        return Response(users)
+
+    def put(self, request, user_id):
+        # Enable/disable user account
+        try:
+            user = User.objects.get(id=user_id)
+            user.is_active = not user.is_active
+            user.save()
+            return Response({
+                'message': f'User {"activated" if user.is_active else "deactivated"} successfully',
+                'is_active': user.is_active
+            }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 # Recipe views
 class CreateRecipeView(generics.ListCreateAPIView):

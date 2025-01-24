@@ -9,6 +9,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    
     path('admin/', admin.site.urls),
     path('api/user/register/', CreateUserView.as_view(), name="register"),
     path('api/token/', TokenObtainPairView.as_view(), name='get token'),
