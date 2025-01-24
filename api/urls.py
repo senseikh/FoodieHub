@@ -15,6 +15,9 @@ from .views import (
     CommentDeleteView,
     RecipeDetailView,
     RecipeUpdateView,
+    AdminDashboardView,
+    AdminUserManagementView,
+    UserLoginView
 )
 
 urlpatterns = [
