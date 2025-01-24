@@ -17,7 +17,8 @@ from .views import (
     RecipeUpdateView,
     AdminDashboardView,
     AdminUserManagementView,
-    UserLoginView
+    UserLoginView,
+    AdminLoginView
 )
 
 urlpatterns = [
@@ -25,7 +26,7 @@ urlpatterns = [
  # User creation and authentication
     path("users/", views.CreateUserView.as_view(), name="create_user"),
     path("login/user/", views.UserLoginView.as_view(), name="user-login"),
-    path("login/admin/", views.AdminLoginView.as_view(), name="admin-login"),
+    path("login/admin/", AdminLoginView.as_view(), name="admin-login"),
 
     path('admin/dashboard/', views.AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/users/', views.AdminUserManagementView.as_view(), name='admin-user-management'),

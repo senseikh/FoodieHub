@@ -1,3 +1,4 @@
+from venv import logger
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics,status
@@ -7,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAdminUser
+from rest_framework_simplejwt.tokens import RefreshToken
+import logging
 from .serializers import (
     UserSerializer,
     RecipeSerializer,
@@ -43,16 +46,103 @@ class AdminLoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        # Extract credentials
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        # Validate input
+        if not username or not password:
+            logger.warning("Login attempt with missing credentials")
+            return Response({
+                "error": "Username and password are required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Authenticate user
+            user = authenticate(request, username=username, password=password)
+
+            # Check authentication
+            if user is None:
+                logger.warning(f"Failed login attempt for username: {username}")
+                return Response({
+                    "error": "Invalid credentials"
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Check admin status
+            if not user.is_staff:
+                logger.warning(f"Non-admin user {username} attempted to log in")
+                return Response({
+                    "error": "Access denied. Admin privileges required."
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            
+            # Log the user in
+            login(request, user)
+
+            # Prepare response
+            return Response({
+                "message": "Admin login successful",
+                "user_id": user.id,
+                "username": user.username,
+                "refresh": str(refresh),
+                "access": str(refresh.access_token)
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Catch any unexpected errors
+            logger.error(f"Unexpected error during admin login: {str(e)}")
+            return Response({
+                "error": "An unexpected error occurred"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        # Add some logging to help diagnose issues
+        print(f"Login attempt for username: {username}")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            if user.is_staff:  # Ensure the user is an admin
+                # Generate JWT token
+                refresh = RefreshToken.for_user(user)
+                login(request, user)
+                return Response({
+                    "message": "Admin logged in successfully",
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token)
+                }, status=status.HTTP_200_OK)
+            return Response({"error": "Only admins can log in here"}, status=status.HTTP_403_FORBIDDEN)
+        
+        # More detailed error logging
+        print("Authentication failed")
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
         username = request.data.get("username")
         password = request.data.get("password")
 
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
-            if user.is_staff:  # Ensure it's an admin
+            if user.is_staff:  # Ensure the user is an admin
+                # Generate JWT token
+                refresh = RefreshToken.for_user(user)
                 login(request, user)
-                return Response({"message": "Admin logged in successfully"}, status=status.HTTP_200_OK)
+                return Response({
+                    "message": "Admin logged in successfully",
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token)
+                }, status=status.HTTP_200_OK)
             return Response({"error": "Only admins can log in here"}, status=status.HTTP_403_FORBIDDEN)
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class AdminDashboardView(APIView):
     permission_classes = [IsAdminUser]
@@ -78,6 +168,8 @@ class AdminUserManagementView(APIView):
         # Fetch all users with their details
         users = User.objects.all().values('id', 'username', 'email', 'is_active', 'date_joined')
         return Response(users)
+    
+        
 
     def put(self, request, user_id):
         # Enable/disable user account
