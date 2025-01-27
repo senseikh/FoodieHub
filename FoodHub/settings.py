@@ -112,7 +112,7 @@ DATABASES = {
     # }
 
     'default': dj_database_url.config(
-        default='postgresql://recipedb_8jw3_user:7yKT7NK0EZLDUWn8Pr9NNBjBquhPz6yj@dpg-cu97nmjqf0us73ddbn60-a.oregon-postgres.render.com/recipedb_8jw3',
+        default=os.getenv("DatabaseUrlRender"),
 
     )
     
