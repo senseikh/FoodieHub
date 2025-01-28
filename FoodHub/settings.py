@@ -50,6 +50,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
+AUTH_USER_MODEL = 'api.User'
 
 # Application definition
 
@@ -117,7 +118,6 @@ DATABASES = {
     )
     
 }
-AUTH_USER_MODEL = 'api.User'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
