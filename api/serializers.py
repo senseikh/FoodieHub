@@ -2,33 +2,45 @@
 from rest_framework import serializers
 from .models import Recipes, Category, Tag, Comment, Blog,User
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 from .models import User 
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'website']
+        fields = ('id', 'username', 'email', 'password', 'confirm_password')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'email': {'required': True}
+        }
 
-# User serializer
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['id', 'username', 'password']
-#         extra_kwargs = {"password": {"write_only": True}}
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        
+        # Validate password strength
+        try:
+            validate_password(data['password'])
+        except ValidationError as e:
+            raise serializers.ValidationError({"password": list(e.messages)})
+            
+        return data
 
-#     def create(self, validated_data):
-#         user = User.objects.create_user(**validated_data)
-#         return user
-
-
-# # UserProfile serializer
-# class UserProfileSerializer(serializers.ModelSerializer):
-#     user = UserSerializer(read_only=True)
-
-#     class Meta:
-#         model = UserProfile
-#         fields = ['id', 'user', 'bio', 'profile_picture', 'website']
+    def create(self, validated_data):
+        # Remove confirm_password from the data
+        validated_data.pop('confirm_password', None)
+        
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            password=validated_data['password']
+        )
+        return user
 
 
 # Category serializer

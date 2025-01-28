@@ -28,7 +28,7 @@ from .views import (
 urlpatterns = [
 
  # User creation and authentication
-    path("users/", views.CreateUserView.as_view(), name="create_user"),
+    path('user/register/', CreateUserView.as_view(), name="register"),
     path("login/user/", views.UserLoginView.as_view(), name="user-login"),
     path("login/admin/", AdminLoginView.as_view(), name="admin-login"),
 
