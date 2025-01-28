@@ -1,27 +1,34 @@
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Recipes, Category, Tag, Comment, UserProfile
+from .models import Recipes, Category, Tag, Comment, Blog,User
+from django.contrib.auth import get_user_model
+from .models import User 
+User = get_user_model()
 
-
-# User serializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'password']
-        extra_kwargs = {"password": {"write_only": True}}
+        fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'website']
 
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
+# User serializer
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['id', 'username', 'password']
+#         extra_kwargs = {"password": {"write_only": True}}
+
+#     def create(self, validated_data):
+#         user = User.objects.create_user(**validated_data)
+#         return user
 
 
-# UserProfile serializer
-class UserProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+# # UserProfile serializer
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     user = UserSerializer(read_only=True)
 
-    class Meta:
-        model = UserProfile
-        fields = ['id', 'user', 'bio', 'profile_picture', 'website']
+#     class Meta:
+#         model = UserProfile
+#         fields = ['id', 'user', 'bio', 'profile_picture', 'website']
 
 
 # Category serializer
@@ -64,3 +71,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         if obj.image:
             return self.context['request'].build_absolute_uri(obj.image.url)
         return None
+
+class BlogSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Blog
+        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'is_public']

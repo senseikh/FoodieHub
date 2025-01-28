@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .models import User 
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import (
@@ -18,7 +19,10 @@ from .views import (
     AdminDashboardView,
     AdminUserManagementView,
     UserLoginView,
-    AdminLoginView
+    AdminLoginView,
+    BlogListView,
+    BlogDetailView,
+    SharedRecipeListView
 )
 
 urlpatterns = [
@@ -31,6 +35,11 @@ urlpatterns = [
     path('admin/dashboard/', views.AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/users/', views.AdminUserManagementView.as_view(), name='admin-user-management'),
     path('admin/users/<int:user_id>/', views.AdminUserManagementView.as_view(), name='admin-user-toggle'),
+
+    # Blog URLs
+    path("blogs/", BlogListView.as_view(), name="list_blogs"),
+    path("blogs/<int:pk>/", BlogDetailView.as_view(), name="blog_detail"),
+    path("recipes/shared/", SharedRecipeListView.as_view(), name="shared_recipes"),
 
     # Recipe Urls
     path("recipe/", views.CreateRecipeView.as_view(), name="recipe creattion"),

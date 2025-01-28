@@ -17,6 +17,7 @@ import os
 
 import dj_database_url
 
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -53,6 +54,7 @@ SIMPLE_JWT = {
 # Application definition
 
 INSTALLED_APPS = [
+    'api', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -60,9 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'corsheaders',  # For handling cross-origin requests
-    'api',
-    # 'drf-spectacular',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +117,7 @@ DATABASES = {
     )
     
 }
+AUTH_USER_MODEL = 'api.User'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
