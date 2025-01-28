@@ -11,8 +11,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError
 import logging
 
-from .models import User 
-
 from .serializers import (
     UserSerializer,
     RecipeSerializer,
@@ -21,7 +19,7 @@ from .serializers import (
     CommentSerializer,
     BlogSerializer
 )
-from .models import Recipes, Category, Tag, Comment,Blog
+from .models import Recipes, Category, Tag, Comment,Blog,User
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
@@ -51,30 +49,7 @@ class CreateUserView(generics.CreateAPIView):
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# User Login View
-# class UserLoginView(APIView):
-#     permission_classes = [AllowAny]
 
-#     def post(self, request, *args, **kwargs):
-#         username = request.data.get("username")
-#         password = request.data.get("password")
-
-#         user = authenticate(request, username=username, password=password)
-#         if user is not None:
-#             if not user.is_staff:  # Ensure it's not an admin
-#                 login(request, user)
-#                 return Response(
-#                     {"message": "User logged in successfully"},
-#                     status=status.HTTP_200_OK
-#                 )
-#             return Response(
-#                 {"error": "Admin accounts cannot log in here"},
-#                 status=status.HTTP_403_FORBIDDEN
-#             )
-#         return Response(
-#             {"error": "Invalid credentials"},
-#             status=status.HTTP_401_UNAUTHORIZED
-#         )
 
 class UserLoginView(APIView):
     permission_classes = [AllowAny]
@@ -123,59 +98,7 @@ class UserLoginView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-# Admin Login View
-# class AdminLoginView(APIView):
-#     permission_classes = [AllowAny]
 
-#     def post(self, request, *args, **kwargs):
-#         username = request.data.get("username")
-#         password = request.data.get("password")
-
-#         if not username or not password:
-#             logger.warning("Login attempt with missing credentials")
-#             return Response(
-#                 {"error": "Username and password are required"},
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
-
-#         try:
-#             # Authenticate user
-#             user = authenticate(request, username=username, password=password)
-
-#             if user is None:
-#                 logger.warning(f"Failed login attempt for username: {username}")
-#                 return Response(
-#                     {"error": "Invalid credentials"},
-#                     status=status.HTTP_401_UNAUTHORIZED
-#                 )
-
-#             if not user.is_staff:  # Ensure the user is an admin
-#                 logger.warning(f"Non-admin user {username} attempted to log in")
-#                 return Response(
-#                     {"error": "Access denied. Admin privileges required."},
-#                     status=status.HTTP_403_FORBIDDEN
-#                 )
-
-#             # Generate JWT tokens
-#             refresh = RefreshToken.for_user(user)
-#             login(request, user)
-
-#             return Response(
-#                 {
-#                     "message": "Admin login successful",
-#                     "user_id": user.id,
-#                     "username": user.username,
-#                     "refresh": str(refresh),
-#                     "access": str(refresh.access_token)
-#                 },
-#                 status=status.HTTP_200_OK
-#             )
-#         except Exception as e:
-#             logger.error(f"Unexpected error during admin login: {str(e)}")
-#             return Response(
-#                 {"error": "An unexpected error occurred"},
-#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-#             )
 
 class AdminLoginView(APIView):
     permission_classes = [AllowAny]
