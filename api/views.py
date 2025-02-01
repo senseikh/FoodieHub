@@ -100,45 +100,65 @@ class UserLoginView(APIView):
 
 
 
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
+
 class AdminLoginView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        email = request.data.get("email")
-        password = request.data.get("password")
-
-        if not email or not password:
-            return Response(
-                {"error": "Both email and password are required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+    def post(self, request):
         try:
-            user = User.objects.get(email=email)
-            user = authenticate(request, username=user.username, password=password)
+            email = request.data.get('email')
+            password = request.data.get('password')
             
-            if user is not None and user.is_staff:
-                login(request, user)
-                refresh = RefreshToken.for_user(user)
-                
-                return Response({
-                    "message": "Admin logged in successfully",
-                    "access": str(refresh.access_token),
-                    "refresh": str(refresh)
-                }, status=status.HTTP_200_OK)
+            if not email or not password:
+                return Response(
+                    {'error': 'Please provide both email and password'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Authenticate user
+            user = authenticate(email=email, password=password)
+            
+            if not user:
+                return Response(
+                    {'error': 'Invalid credentials'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+            # Check if user is an admin
+            if not user.is_admin:  # Assuming you have an is_admin field in your User model
+                return Response(
+                    {'error': 'Access denied. Admin privileges required.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # Generate tokens for admin
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'status': 'success',
+                'message': 'Admin login successful',
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'username': user.username,
+                    'is_admin': user.is_admin
+                }
+            }, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
             return Response(
-                {"error": "Invalid admin credentials"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        except User.DoesNotExist:
-            return Response(
-                {"error": "No admin found with this email"},
+                {'error': 'User does not exist'},
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            logger.error(f"Admin login error: {str(e)}")
             return Response(
-                {"error": "An error occurred during login"},
+                {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 class AdminDashboardView(APIView):
