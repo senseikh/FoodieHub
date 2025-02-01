@@ -5,9 +5,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import (
     CreateUserView,
-    CreateRecipeView,
-    RecipeDelete,
-    RecipeListView,
     CategoryListCreateView,
     CategoryDetailView,
     TagListCreateView,
@@ -16,9 +13,6 @@ from .views import (
     CommentDeleteView,
     RecipeDetailView,
     RecipeUpdateView,
-    AdminDashboardView,
-    AdminUserManagementView,
-    UserLoginView,
     AdminLoginView,
     BlogListView,
     BlogDetailView,
@@ -43,6 +37,7 @@ urlpatterns = [
 
     # Recipe Urls
     path("recipe/", views.CreateRecipeView.as_view(), name="recipe creattion"),
+    path("recipe/list/", views.CreateRecipeView.as_view(), name="recipe creattion"),
     path("recipe/delete/<int:pk>/", views.RecipeDelete.as_view(), name="Recipe deletion"),
     path("recipes/<int:pk>/", RecipeDetailView.as_view(), name="recipe_detail"),
     path("recipes/<int:pk>/update/", RecipeUpdateView.as_view(), name="recipe_update"),
