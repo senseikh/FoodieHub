@@ -420,3 +420,17 @@ class BlogDetailView(generics.RetrieveAPIView):
     serializer_class = BlogSerializer
     permission_classes = [AllowAny]  
     queryset = Blog.objects.filter(is_public=True)
+
+class MyBlogsView(generics.ListAPIView):
+    serializer_class = BlogSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Blog.objects.filter(author=self.request.user)
+
+class BlogUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BlogSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Blog.objects.filter(author=self.request.user)
