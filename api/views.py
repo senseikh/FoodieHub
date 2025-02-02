@@ -16,6 +16,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
 
 from .serializers import (
     UserSerializer,
@@ -30,6 +32,11 @@ User = get_user_model()
 
 logger = logging.getLogger(__name__)
 
+
+class RecipePagination(PageNumberPagination):
+    page_size = 9
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -103,9 +110,6 @@ class UserLoginView(APIView):
                 {"error": "An error occurred during login"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-
 
 
 class AdminLoginView(APIView):
@@ -202,6 +206,96 @@ class AdminUserManagementView(APIView):
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
+class UpdateUserProfileView(generics.UpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            # Prevent email/username update if they already exist
+            new_email = serializer.validated_data.get('email')
+            new_username = serializer.validated_data.get('username')
+            
+            if new_email and new_email != user.email:
+                if User.objects.filter(email=new_email).exists():
+                    return Response(
+                        {"error": "Email already exists"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            if new_username and new_username != user.username:
+                if User.objects.filter(username=new_username).exists():
+                    return Response(
+                        {"error": "Username already exists"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            serializer.save()
+            return Response({
+                "message": "Profile updated successfully",
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email
+                }
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        
+        if not old_password or not new_password:
+            return Response(
+                {"error": "Both old and new passwords are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Verify old password
+        if not user.check_password(old_password):
+            return Response(
+                {"error": "Current password is incorrect"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Validate new password
+            validate_password(new_password, user)
+            
+            # Set new password
+            user.set_password(new_password)
+            user.save()
+            
+            # Generate new tokens since password changed
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                "message": "Password updated successfully",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh)
+            })
+            
+        except ValidationError as e:
+            return Response(
+                {"error": list(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"error": "An error occurred while updating password"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 # Recipe views
 class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
@@ -231,7 +325,7 @@ class RecipeDelete(generics.DestroyAPIView):
 
 class RecipeListView(generics.ListAPIView):
     serializer_class = RecipeSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Recipes.objects.all()
 
 class RecipeDetailView(generics.RetrieveAPIView):

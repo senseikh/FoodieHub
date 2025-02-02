@@ -16,7 +16,9 @@ from .views import (
     AdminLoginView,
     BlogListView,
     BlogDetailView,
-    SharedRecipeListView
+    SharedRecipeListView,
+    UpdateUserProfileView,
+    ChangePasswordView
 )
 
 urlpatterns = [
@@ -25,6 +27,9 @@ urlpatterns = [
     path('user/register/', CreateUserView.as_view(), name="register"),
     path("login/user/", views.UserLoginView.as_view(), name="user-login"),
     path("login/admin/", AdminLoginView.as_view(), name="admin-login"),
+
+    path('profile/update/', UpdateUserProfileView.as_view(), name='update-profile'),
+    path('profile/change-password/', ChangePasswordView.as_view(), name='change-password'),
 
     path('admin/dashboard/', views.AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/users/', views.AdminUserManagementView.as_view(), name='admin-user-management'),
@@ -38,6 +43,7 @@ urlpatterns = [
     # Recipe Urls
     path("recipe/", views.CreateRecipeView.as_view(), name="recipe creattion"),
     path("recipe/list/", views.CreateRecipeView.as_view(), name="recipe creattion"),
+    
     path("recipe/delete/<int:pk>/", views.RecipeDelete.as_view(), name="Recipe deletion"),
     path("recipes/<int:pk>/", RecipeDetailView.as_view(), name="recipe_detail"),
     path("recipes/<int:pk>/update/", RecipeUpdateView.as_view(), name="recipe_update"),
