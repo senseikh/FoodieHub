@@ -62,6 +62,7 @@ class Recipes(models.Model):
     )
     tags = models.ManyToManyField("Tag", blank=True, related_name="recipe_tags")
     is_public = models.BooleanField(default=False)  # To determine if the recipe is shareable
+    ingredients = models.CharField(max_length=50),
 
     def __str__(self):
         return self.title
