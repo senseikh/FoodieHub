@@ -1,6 +1,6 @@
 # from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Recipes, Category, Tag, Comment, Blog,User
+from .models import Recipes, Category, Tag, Comment, Blog,User,RecipeComment
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
@@ -76,13 +76,27 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipes
-        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'image', 'category', 'tags', 'comments']
+        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'image', 'category', 'tags', 'comments', 'ingredients']
         extra_kwargs = {"author": {"read_only": True}}
         read_only_fields = ['author']
     def get_image(self, obj):
         if obj.image:
             return self.context['request'].build_absolute_uri(obj.image.url)
         return None
+    
+class RecipeCommentSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source='author.username', read_only=True)
+    can_delete = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = RecipeComment
+        fields = ['id', 'content', 'author', 'created_at', 'can_delete']
+
+    def get_can_delete(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.author == request.user
+        return False
 
 class BlogSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)

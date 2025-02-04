@@ -63,9 +63,19 @@ class Recipes(models.Model):
     tags = models.ManyToManyField("Tag", blank=True, related_name="recipe_tags")
     is_public = models.BooleanField(default=False)  # To determine if the recipe is shareable
     ingredients = models.CharField(max_length=50),
-
+    comments = models.CharField(max_length=50),
     def __str__(self):
         return self.title
+
+class RecipeComment(models.Model):
+    recipe = models.ForeignKey(Recipes, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Comment by {self.author.username} on {self.recipe.title}'
 
 
 # Category model

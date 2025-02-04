@@ -25,9 +25,11 @@ from .serializers import (
     CategorySerializer,
     TagSerializer,
     CommentSerializer,
-    BlogSerializer
+    BlogSerializer,
+    RecipeCommentSerializer
 )
-from .models import Recipes, Category, Tag, Comment,Blog,User
+from .models import Recipes, Category, Tag, Comment,Blog,User,RecipeComment
+from .models import models
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
@@ -395,13 +397,54 @@ class CommentListCreateView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
-class CommentDeleteView(generics.DestroyAPIView):
-    serializer_class = CommentSerializer
+class SharedRecipeDetailView(generics.RetrieveAPIView):
+    queryset = Recipes.objects.filter(is_public=True)
+    serializer_class = RecipeSerializer
+    permission_classes = [IsAuthenticated]
+
+class RecipeCommentView(generics.ListCreateAPIView):
+    serializer_class = RecipeCommentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        return Comment.objects.filter(user=user)
+        return RecipeComment.objects.filter(recipe_id=self.kwargs['recipe_id'])
+
+    def perform_create(self, serializer):
+        recipe = Recipes.objects.get(id=self.kwargs['recipe_id'])
+        serializer.save(author=self.request.user, recipe=recipe)
+
+class CommentDeleteView(generics.DestroyAPIView):
+    queryset = RecipeComment.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        comment = self.get_object()
+        if comment.author != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
+
+class ShareRecipeView(generics.UpdateAPIView):
+    queryset = Recipes.objects.all()
+    serializer_class = RecipeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        recipe = self.get_object()
+        if recipe.author != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        recipe.is_public = True
+        recipe.save()
+        return Response(self.get_serializer(recipe).data)
+
+
+
+# class CommentDeleteView(generics.DestroyAPIView):
+#     serializer_class = CommentSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         return Comment.objects.filter(user=user)
 
 class SharedRecipeListView(generics.ListAPIView):
     serializer_class = RecipeSerializer
