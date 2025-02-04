@@ -26,7 +26,8 @@ from .serializers import (
     TagSerializer,
     CommentSerializer,
     BlogSerializer,
-    RecipeCommentSerializer
+    RecipeCommentSerializer,
+    UserProfileSerializer,
 )
 from .models import Recipes, Category, Tag, Comment,Blog,User,RecipeComment
 from .models import models
@@ -113,6 +114,41 @@ class UserLoginView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)  # To handle file uploads
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            # Delete old profile picture if it exists
+            if instance.profile_picture:
+                instance.profile_picture.delete(save=False)
+        
+        serializer = self.get_serializer(
+            instance, 
+            data=request.data, 
+            partial=partial,
+            context={'request': request}
+        )
+        
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 class AdminLoginView(APIView):
     def post(self, request):

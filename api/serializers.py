@@ -41,7 +41,27 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id', 
+            'email',
+            'username',
+            'bio',
+            'profile_picture',
+            'website',
+            'date_joined',
+            'first_name',
+            'last_name'
+        ]
+        read_only_fields = ['id', 'email', 'date_joined']  # Make certain fields read-only for security
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if representation['profile_picture']:
+            representation['profile_picture'] = self.context['request'].build_absolute_uri(instance.profile_picture.url)
+        return representation
 
 # Category serializer
 class CategorySerializer(serializers.ModelSerializer):
