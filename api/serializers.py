@@ -110,8 +110,9 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = ['id', 'image', 'title', 'content', 'created_at', 'updated_at', 'author', 'is_public']
-        extra_kwargs = {"author": {"read_only": True}}
-        read_only_fields = ['author']
+
+        # extra_kwargs = {"author": {"read_only": True}}
+        # read_only_fields = ['author']
     def get_image(self, obj):
         if obj.image:
             return self.context['request'].build_absolute_uri(obj.image.url)

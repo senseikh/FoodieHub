@@ -452,9 +452,9 @@ class BlogListView(generics.ListAPIView):
     permission_classes = [AllowAny] 
     queryset = Blog.objects.filter(is_public=True)
 
-    def get_queryset(self):
-        user = self.request.user
-        return Blog.objects.filter(author=user)
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     return Blog.objects.filter(author=user)
 
     def perform_create(self, serializer):
         # Check if an image was uploaded
