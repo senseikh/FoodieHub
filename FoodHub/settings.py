@@ -56,6 +56,7 @@ AUTH_USER_MODEL = 'api.User'
 
 INSTALLED_APPS = [
     'api', 
+    'community',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    
 ]
 
 MIDDLEWARE = [
@@ -100,9 +102,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'FoodHub.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
@@ -126,9 +125,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -145,9 +141,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -157,25 +150,11 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# # security setting 
-# CSRF_COOKIE_SAMESITE = 'strict'
-# SESSION_COOKIE_SAMESITE = 'strict'
-# CSRF_COOKIE_HTTPONLY = False
-# SESSION_COOKIE_HTTPONLY = True
-# # For production
-# CSRF_COOKIE_HTTPONLY = True
-# SESSION_COOKIE_HTTPONLY = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  
@@ -183,9 +162,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://foodhub-156e0.web.app",
 ]
 
-# REST_FRAMEWORK = {'DEFAULT_SCHEMA_CLASS':'drf-spectacular.openapi.AutoSchema'}
-
-# SPECTACULAR_SETTINGS = {"TITLE":"Foodie Hub Documentation"}
 
 ALLOWED_HOSTS = ['foodiehub-727v.onrender.com', 'localhost', '127.0.0.1']
 
