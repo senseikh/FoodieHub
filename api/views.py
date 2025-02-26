@@ -449,7 +449,7 @@ class SharedRecipeListView(generics.ListAPIView):
     
 class BlogListView(generics.ListAPIView):
     serializer_class = BlogSerializer
-    permission_classes = [AllowAny] 
+    permission_classes = [IsAuthenticated] 
     # queryset = Blog.objects.filter(is_public=True)
     parser_classes = (MultiPartParser, FormParser)  # Important for file uploads
 
