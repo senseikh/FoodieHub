@@ -53,11 +53,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
 
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'rest_framework.authtoken',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
+    # 'rest_framework.authtoken',
     
 ]
 
@@ -72,7 +72,7 @@ MIDDLEWARE = [
 
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'FoodHub.urls'
@@ -185,20 +185,20 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-LOGIN_REDIRECT_URL = '/callback/'
-# LOGOUT_REDIRECT_URL = '/callback/'
+# LOGIN_REDIRECT_URL = '/callback/'
+# # LOGOUT_REDIRECT_URL = '/callback/'
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE' : [
-            'profile',
-            'email'
-        ],
-        'AUTH_PARAMS': {
-            'access_type':'online',
-        },
-        'OAUTH_PKCE_ENABLED':True,
-        'FETCH_USERINFO':True
-    }
-}
-SOCIALACCOUNT_STORE_TOKENS = True
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE' : [
+#             'profile',
+#             'email'
+#         ],
+#         'AUTH_PARAMS': {
+#             'access_type':'online',
+#         },
+#         'OAUTH_PKCE_ENABLED':True,
+#         'FETCH_USERINFO':True
+#     }
+# }
+# SOCIALACCOUNT_STORE_TOKENS = True
