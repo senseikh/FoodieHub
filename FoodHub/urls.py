@@ -15,7 +15,7 @@ urlpatterns = [
     # path('api/user/register/', CreateUserView.as_view(), name="register"),
     path('api/token/', TokenObtainPairView.as_view(), name='get token'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name="refresh tooken"),
-    # path('api-auth/', include('rest_framework.urls')),
+    path('api-auth/', include('rest_framework.urls')),
     # path('accounts/', include('allauth.urls')),
     # path('callback/', google_login_callback, name="callback"),
     path('api/', include('api.urls')),

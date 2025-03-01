@@ -33,7 +33,7 @@ urlpatterns = [
     path('user/register/', CreateUserView.as_view(), name="register"),
     path("login/user/", views.UserLoginView.as_view(), name="user-login"),
     path("login/admin/", AdminLoginView.as_view(), name="admin-login"),
-    # path('auth/user/', UserDetailView.as_view(), name="user-detail"),
+    path('auth/user/', UserDetailView.as_view(), name="user-detail"),
     # path('google/validate_token',validate_google_token, name="validate-token" ),
 
 
