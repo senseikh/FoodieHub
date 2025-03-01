@@ -4,8 +4,11 @@ from .models import Recipes, Category, Tag, Comment, Blog,User
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
+
+
 from .models import User 
 User = get_user_model()
+
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
