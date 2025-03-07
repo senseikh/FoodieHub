@@ -18,7 +18,6 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
-from django.shortcuts import redirect
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -26,10 +25,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import login
-from django.contrib.auth.forms import PasswordChangeForm
+
 
 
 from .serializers import (
