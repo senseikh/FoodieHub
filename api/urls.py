@@ -24,16 +24,12 @@ from .views import (
     MyBlogsView,
     UserProfileView
 )
-
 urlpatterns = [
 
  # User creation and authentication
     path('user/register/', CreateUserView.as_view(), name="register"),
     path("login/user/", views.UserLoginView.as_view(), name="user-login"),
     path("login/admin/", AdminLoginView.as_view(), name="admin-login"),
-    # path('auth/user/', UserDetailView.as_view(), name="user-detail"),
-    # # path('google/validate_token',validate_google_token, name="validate-token" ),
-
 
     path('user/profile/', UserProfileView.as_view(), name='user-profile'),
     path('profile/update/', UpdateUserProfileView.as_view(), name='update-profile'),

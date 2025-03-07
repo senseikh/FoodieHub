@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset Password</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-[#091548] text-white flex items-center justify-center min-h-screen"
+  >
+    <div
+      class="max-w-md w-full bg-[#091548] p-6 rounded-lg shadow-lg text-center"
+    >
+      <img
+        src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/3986/header3.png"
+        alt="Main Image"
+        class="mx-auto w-40"
+      />
+      <h2 class="text-3xl font-bold mt-4">Reset Your Password</h2>
+      <p class="mt-4 text-sm">
+        Hi {{email_address}}, we received a request to reset your password.
+        Don’t worry, we are here to help you.
+      </p>
+      <a
+        href="{{full_link}}"
+        target="_blank"
+        class="inline-block mt-6 bg-white text-[#091548] font-bold py-2 px-6 rounded-full text-sm shadow-lg"
+        >RESET MY PASSWORD</a
+      >
+      <hr class="my-6 border-t border-[#5A6BA8]" />
+      <p class="text-sm text-[#7f96ef] font-bold">
+        Didn’t request a password reset?
+      </p>
+      <p class="text-sm">You can safely ignore this message.</p>
+    </div>
+  </body>
+</html>
