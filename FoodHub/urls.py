@@ -17,7 +17,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='get token'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name="refresh tooken"),
     
-    # path('api-auth/', include('rest_framework.urls')),
+ 
     path('api/password_reset/',include('django_rest_passwordreset.urls', namespace='password_reset')),
 
     path('api/', include('api.urls')),
