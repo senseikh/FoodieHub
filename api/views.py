@@ -345,6 +345,7 @@ class ChangePasswordView(APIView):
 class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated]
+    # queryset = Recipes.objects.filter(is_public=True)
     parser_classes = (MultiPartParser, FormParser)  # Important for file uploads
 
     def get_queryset(self):
