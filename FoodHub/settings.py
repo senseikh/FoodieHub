@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ["*"]
 
 
 AUTH_USER_MODEL = 'api.User'
+\
 
 INSTALLED_APPS = [
     
@@ -106,25 +107,25 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
-# AUTHENTICATION_BACKENDS = [
-#     # 'users.authback.EmailBackend',
-#     "django.contrib.auth.backends.ModelBackend", # this line fixed my problem
-# ]
-
-# DATABASES = {
-
-#     'default': dj_database_url.config(
-#         default=os.getenv("DatabaseUrlRender"),
-#     )
-    
-# }
+AUTHENTICATION_BACKENDS = [
+    # 'users.authback.EmailBackend',
+    "django.contrib.auth.backends.ModelBackend", # this line fixed my problem
+]
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+
+    'default': dj_database_url.config(
+        default=os.getenv("DatabaseUrlRender"),
+    )
+    
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
