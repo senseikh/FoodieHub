@@ -38,7 +38,6 @@ ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = 'api.User'
 
-
 INSTALLED_APPS = [
     
     'django.contrib.admin',
@@ -107,10 +106,10 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
-# AUTHENTICATION_BACKENDS = [
-#     # 'users.authback.EmailBackend',
-#     "django.contrib.auth.backends.ModelBackend", # this line fixed my problem
-# ]
+AUTHENTICATION_BACKENDS = [
+    # 'users.authback.EmailBackend',
+    "django.contrib.auth.backends.ModelBackend", # this line fixed my problem
+]
 
 DATABASES = {
 

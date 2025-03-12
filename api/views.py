@@ -44,12 +44,6 @@ User = get_user_model()
 
 logger = logging.getLogger(__name__)
 
-
-class RecipePagination(PageNumberPagination):
-    page_size = 9
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -344,13 +338,13 @@ class ChangePasswordView(APIView):
 # Recipe views
 class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     # queryset = Recipes.objects.filter(is_public=True)
     parser_classes = (MultiPartParser, FormParser)  # Important for file uploads
 
-    def get_queryset(self):
-        user = self.request.user
-        return Recipes.objects.filter(author=user)
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     return Recipes.objects.filter(author=user)
 
     def perform_create(self, serializer):
         # Check if an image was uploaded
