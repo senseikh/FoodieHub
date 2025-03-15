@@ -120,6 +120,7 @@ class UserLoginView(APIView):
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [ JWTAuthentication] 
     parser_classes = (MultiPartParser, FormParser)  # To handle file uploads
 
     def get_object(self):
@@ -250,6 +251,7 @@ class AdminUserManagementView(APIView):
 class UpdateUserProfileView(generics.UpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [ JWTAuthentication] 
 
     def get_object(self):
         return self.request.user
@@ -290,6 +292,7 @@ class UpdateUserProfileView(generics.UpdateAPIView):
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [ JWTAuthentication] 
 
     def post(self, request):
         user = request.user
@@ -337,23 +340,6 @@ class ChangePasswordView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-# Recipe views
-# class CreateRecipeView(generics.ListCreateAPIView):
-#     serializer_class = RecipeSerializer
-#     parser_classes = (MultiPartParser, FormParser)
-
-#     def get_permissions(self):
-#         if self.request.method == 'GET':
-#             return [AllowAny()]
-#         return [IsAuthenticated()]
-    
-#     def get_queryset(self):
-#         user = self.request.user
-#         return Recipes.objects.filter(author=user)
-
-#     def perform_create(self, serializer):
-#         image = self.request.data.get('image')
-#         serializer.save(author=self.request.user, image=image)
 class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated] 
