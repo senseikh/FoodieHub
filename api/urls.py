@@ -22,7 +22,8 @@ from .views import (
     BlogListView,
     BlogUpdateDeleteView,
     MyBlogsView,
-    UserProfileView
+    UserProfileView,
+    PublicRecipesView,
 )
 urlpatterns = [
 
@@ -53,11 +54,10 @@ urlpatterns = [
     path("recipe/delete/<int:pk>/", views.RecipeDelete.as_view(), name="Recipe deletion"),
     path("recipes/<int:pk>/", RecipeDetailView.as_view(), name="recipe_detail"),
     path("recipes/<int:pk>/update/", RecipeUpdateView.as_view(), name="recipe_update"),
-    # path("recipes/shared/", SharedRecipeListView.as_view(), name="shared_recipes"),
+    path('recipes/public/', PublicRecipesView.as_view(), name='public_recipes'),
 
     
 
-    # path("recipes/list/", RecipeListView.as_view(), name="list_recipes"),
     path("categories/", CategoryListCreateView.as_view(), name="list_create_categories"),
     path("categories/<int:pk>/", CategoryDetailView.as_view(), name="category_detail"),
     path("tags/", TagListCreateView.as_view(), name="list_create_tags"),

@@ -10,7 +10,6 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 
-
 # User=get_user_model()
 
 class CustomUserManager(BaseUserManager):
@@ -88,7 +87,7 @@ class Recipes(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name="recipes"
     )
@@ -97,7 +96,7 @@ class Recipes(models.Model):
         "Category", on_delete=models.SET_NULL, null=True, blank=True, related_name="recipe_categories"
     )
     tags = models.ManyToManyField("Tag", blank=True, related_name="recipe_tags")
-    is_public = models.BooleanField(default=False)  # To determine if the recipe is shareable
+    is_public = models.BooleanField(default=False) 
     ingredients = models.CharField(max_length=50),
 
     def __str__(self):

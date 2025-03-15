@@ -19,10 +19,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework.exceptions import PermissionDenied
 
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -336,54 +338,87 @@ class ChangePasswordView(APIView):
             )
 
 # Recipe views
+# class CreateRecipeView(generics.ListCreateAPIView):
+#     serializer_class = RecipeSerializer
+#     parser_classes = (MultiPartParser, FormParser)
+
+#     def get_permissions(self):
+#         if self.request.method == 'GET':
+#             return [AllowAny()]
+#         return [IsAuthenticated()]
+    
+#     def get_queryset(self):
+#         user = self.request.user
+#         return Recipes.objects.filter(author=user)
+
+#     def perform_create(self, serializer):
+#         image = self.request.data.get('image')
+#         serializer.save(author=self.request.user, image=image)
 class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
+    permission_classes = [IsAuthenticated] 
+    authentication_classes = [ JWTAuthentication] 
     permission_classes = [AllowAny]
-    # queryset = Recipes.objects.filter(is_public=True)
-    parser_classes = (MultiPartParser, FormParser)  # Important for file uploads
-
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     return Recipes.objects.filter(author=user)
+    parser_classes = (MultiPartParser, FormParser) 
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return Recipes.objects.filter(author=user)
+        return Recipes.objects.filter(is_public=True)
 
     def perform_create(self, serializer):
-        # Check if an image was uploaded
-        image = self.request.data.get('image')
+        user = self.request.user
+        if not user.is_authenticated:
+            raise PermissionDenied("You must be logged in to create a recipe")
         
-        # Save the recipe with the author and optional image
-        serializer.save(author=self.request.user, image=image)
+        image = self.request.data.get('image')
+        serializer.save(author=user, image=image)
+class PublicRecipesView(generics.ListAPIView):
+    serializer_class = RecipeSerializer
+    authentication_classes = [ JWTAuthentication] 
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Recipes.objects.filter(is_public=True)
 
 
 class RecipeDelete(generics.DestroyAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [ JWTAuthentication] 
 
     def get_queryset(self):
         user = self.request.user
-        return Recipes.objects.filter(author=user)
-
-
-class RecipeListView(generics.ListAPIView):
-    serializer_class = RecipeSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = Recipes.objects.all()
+        if user.is_authenticated:
+            return Recipes.objects.filter(author=user)
+        return Recipes.objects.filter(is_public=True)   
 
 class RecipeDetailView(generics.RetrieveAPIView):
     serializer_class = RecipeSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
+    permission_classes = [AllowAny]
+    queryset = Recipes.objects.all()
+    authentication_classes = [ JWTAuthentication] 
+    
+    def get_object(self):
+        obj = super().get_object()
         user = self.request.user
-        return Recipes.objects.filter(author=user)
-
+        if obj.is_public:
+            return obj
+        if user.is_authenticated and obj.author == user:
+            return obj
+        raise PermissionDenied("You don't have permission to view this recipe")
 
 class RecipeUpdateView(generics.UpdateAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [ JWTAuthentication] 
 
     def get_queryset(self):
         user = self.request.user
-        return Recipes.objects.filter(author=user)
+        if user.is_authenticated:
+            return Recipes.objects.filter(author=user)
+        return Recipes.objects.filter(is_public=True)
 
 
 # Category views
