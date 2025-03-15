@@ -232,8 +232,6 @@ class AdminUserManagementView(APIView):
         # Fetch all users with their details
         users = User.objects.all().values('id', 'username', 'email', 'is_active', 'date_joined')
         return Response(users)
-    
-        
 
     def put(self, request, user_id):
         # Enable/disable user account
@@ -259,7 +257,6 @@ class UpdateUserProfileView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         user = self.get_object()
         serializer = self.get_serializer(user, data=request.data, partial=True)
-        
         if serializer.is_valid():
             # Prevent email/username update if they already exist
             new_email = serializer.validated_data.get('email')
@@ -319,8 +316,6 @@ class ChangePasswordView(APIView):
             # Set new password
             user.set_password(new_password)
             user.save()
-            
-            # Generate new tokens since password changed
             refresh = RefreshToken.for_user(user)
             
             return Response({
@@ -344,7 +339,7 @@ class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated] 
     authentication_classes = [ JWTAuthentication] 
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny] 
     parser_classes = (MultiPartParser, FormParser) 
     
     def get_queryset(self):
@@ -477,10 +472,6 @@ class BlogListView(generics.ListAPIView):
     permission_classes = [AllowAny] 
     queryset = Blog.objects.filter(is_public=True)
     parser_classes = (MultiPartParser, FormParser)  # Important for file uploads
-
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     return Blog.objects.filter(author=user)
 
     def perform_create(self, serializer):
         # Check if an image was uploaded
