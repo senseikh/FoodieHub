@@ -120,6 +120,7 @@ class Comment(models.Model):
         Recipes, on_delete=models.CASCADE, related_name="recipe_comments"  # Unique related_name
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_comments")
+    guest_name = models.CharField(max_length=100, null=True, blank=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

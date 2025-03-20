@@ -14,20 +14,22 @@ from .views import (
     RecipeDetailView,
     RecipeUpdateView,
     AdminLoginView,
-    BlogListView,
+    BlogCreateview,
     BlogDetailView,
     SharedRecipeListView,
     UpdateUserProfileView,
     ChangePasswordView,
-    BlogListView,
     BlogUpdateDeleteView,
     MyBlogsView,
     UserProfileView,
     PublicRecipesView,
+    AuthUserView,
+    PublicBlogView
 )
 urlpatterns = [
 
  # User creation and authentication
+    path('auth/user/', AuthUserView.as_view(), name='auth-user'),
     path('user/register/', CreateUserView.as_view(), name="register"),
     path("login/user/", views.UserLoginView.as_view(), name="user-login"),
     path("login/admin/", AdminLoginView.as_view(), name="admin-login"),
@@ -41,10 +43,11 @@ urlpatterns = [
     path('admin/users/<int:user_id>/', views.AdminUserManagementView.as_view(), name='admin-user-toggle'),
 
     # Blog URLs
-    path("blogs/", BlogListView.as_view(), name="list_blogs"),
+    path("blogs/", BlogCreateview.as_view(), name="list_blogs"),
     path("blogs/<int:pk>/", BlogDetailView.as_view(), name="blog_detail"),
-    path('blogs/my-blogs/', MyBlogsView.as_view(), name='my-blogs'),
+    # path('blogs/my-blogs/', MyBlogsView.as_view(), name='my-blogs'),
     path('blogs/<int:pk>/', BlogUpdateDeleteView.as_view(), name='blog-detail'),
+    path('blogs/public/', PublicBlogView.as_view(), name='public_blogs'),
    
 
     # Recipe Urls
@@ -55,6 +58,7 @@ urlpatterns = [
     path("recipes/<int:pk>/", RecipeDetailView.as_view(), name="recipe_detail"),
     path("recipes/<int:pk>/update/", RecipeUpdateView.as_view(), name="recipe_update"),
     path('recipes/public/', PublicRecipesView.as_view(), name='public_recipes'),
+    path('recipes/<int:recipe_id>/comments/', CommentListCreateView.as_view(), name='recipe-comments'),
 
     
 

@@ -86,8 +86,18 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'recipe', 'user', 'content', 'created_at', 'updated_at']
-        extra_kwargs = {"recipe": {"read_only": True}}
+        fields = ['id', 'content', 'created_at', 'updated_at', 'user', 'guest_name']  # Removed 'recipe'
+        extra_kwargs = {'recipe': {'required': False}}
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request.user.is_authenticated and not data.get('guest_name'):
+            raise serializers.ValidationError("Guest name is required for anonymous comments")
+        return data
+    def create(self, validated_data):
+        recipe = self.context.get('recipe')
+        if not recipe:
+            raise serializers.ValidationError({"recipe": "Recipe ID is required."})
+        return Comment.objects.create(recipe=recipe, **validated_data)
 
 
 # Recipe serializer
@@ -95,7 +105,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    comments = CommentSerializer(many=True, read_only=True)
+    # comments = CommentSerializer(many=True, read_only=True)
+    comments = CommentSerializer(source='recipe_comments', many=True, read_only=True)
 
     class Meta:
         model = Recipes

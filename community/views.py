@@ -1,90 +1,25 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from django.db.models import Q
-from .models import Hotel, Restaurant, CommunityPost, Resource
-from .serializers import (
-    HotelSerializer, RestaurantSerializer,
-    CommunityPostSerializer, ResourceSerializer
-)
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
-class HotelViewSet(viewsets.ModelViewSet):
-    queryset = Hotel.objects.all()
+from .models import Hotel
+from .serializers import HotelSerializer
+from api.models import User 
+class NearbyHotelsView(generics.ListCreateAPIView):
     serializer_class = HotelSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    @action(detail=False, methods=['GET'])
-    def nearby(self, request):
-        lat = request.query_params.get('lat')
-        lng = request.query_params.get('lng')
-        radius = request.query_params.get('radius', 5)  # Default 5km radius
-
-        if not all([lat, lng]):
-            return Response(
-                {"error": "Latitude and longitude are required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Basic proximity search
-        queryset = self.queryset.filter(
-            latitude__range=(float(lat) - 0.1, float(lat) + 0.1),
-            longitude__range=(float(lng) - 0.1, float(lng) + 0.1)
-        )
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-class RestaurantViewSet(viewsets.ModelViewSet):
-    queryset = Restaurant.objects.all()
-    serializer_class = RestaurantSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    @action(detail=False, methods=['GET'])
-    def nearby(self, request):
-        lat = request.query_params.get('lat')
-        lng = request.query_params.get('lng')
-        radius = request.query_params.get('radius', 5)
-
-        if not all([lat, lng]):
-            return Response(
-                {"error": "Latitude and longitude are required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        queryset = self.queryset.filter(
-            latitude__range=(float(lat) - 0.1, float(lat) + 0.1),
-            longitude__range=(float(lng) - 0.1, float(lng) + 0.1)
-        )
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-class CommunityPostViewSet(viewsets.ModelViewSet):
-    queryset = CommunityPost.objects.all()
-    serializer_class = CommunityPostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-    @action(detail=True, methods=['POST'])
-    def like(self, request, pk=None):
-        post = self.get_object()
-        user = request.user
-        if post.likes.filter(id=user.id).exists():
-            post.likes.remove(user)
-            return Response({'status': 'unliked'})
-        else:
-            post.likes.add(user)
-            return Response({'status': 'liked'})
-
-class ResourceViewSet(viewsets.ModelViewSet):
-    queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # authentication_classes = [JWTAuthentication] 
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Resource.objects.all()
-        category = self.request.query_params.get('category', None)
-        if category:
-            queryset = queryset.filter(category=category)
-        return queryset
+        lat = self.request.query_params.get('lat')
+        lng = self.request.query_params.get('lng')
+        if lat and lng:
+            return Hotel.objects.filter(
+                latitude__gte=float(lat) - 0.05,
+                latitude__lte=float(lat) + 0.05,
+                longitude__gte=float(lng) - 0.05,
+                longitude__lte=float(lng) + 0.05
+            )
+        return Hotel.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

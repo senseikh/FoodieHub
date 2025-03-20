@@ -9,8 +9,11 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError
+from rest_framework import serializers
+
 import logging
 from rest_framework import status
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,6 +21,8 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -45,6 +50,18 @@ from .models import Recipes, Category, Tag, Comment,Blog,User
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
+
+
+class AuthUserView(APIView):
+    permission_classes = [IsAuthenticated]  
+
+    def get(self, request):
+        user_data = {
+            "id": request.user.id,
+            "username": request.user.username,
+            "email": request.user.email
+        }
+        return Response(user_data, status=status.HTTP_200_OK)
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -339,7 +356,6 @@ class CreateRecipeView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated] 
     authentication_classes = [ JWTAuthentication] 
-    # permission_classes = [AllowAny] 
     parser_classes = (MultiPartParser, FormParser) 
     
     def get_queryset(self):
@@ -355,15 +371,69 @@ class CreateRecipeView(generics.ListCreateAPIView):
         
         image = self.request.data.get('image')
         serializer.save(author=user, image=image)
+
+
 class PublicRecipesView(generics.ListAPIView):
     serializer_class = RecipeSerializer
-    authentication_classes = [ JWTAuthentication] 
+    # authentication_classes = [ JWTAuthentication] 
+    permission_classes = [AllowAny]
+    def get_queryset(self):
+        return Recipes.objects.filter(is_public=True)
+    
+# class CommentListCreateView(generics.ListCreateAPIView):
+#     serializer_class = CommentSerializer
+#     permission_classes = [AllowAny]
+#     authentication_classes = [ JWTAuthentication] 
+
+#     def get_queryset(self):
+#         recipe_id = self.kwargs.get('recipe_id')
+#         return Comment.objects.filter(recipe_id=recipe_id)
+
+#     def perform_create(self, serializer):
+#         # Ensure `recipe_id` is fetched within this method
+#         recipe_id = self.kwargs.get('recipe_id')  # Correctly defined here
+        
+#         recipe = get_object_or_404(Recipes, id=recipe_id)
+        
+#         if not recipe.is_public and not self.request.user.is_authenticated:
+#             raise PermissionDenied("You cannot comment on private recipes")
+        
+#         if self.request.user.is_authenticated:
+#             serializer.save(recipe=recipe, user=self.request.user)
+#         else:
+#             guest_name = self.request.data.get('guest_name')
+#             if not guest_name:
+#                 raise serializers.ValidationError("Guest name is required for anonymous users.")
+            
+#             serializer.save(recipe=recipe)
+class CommentListCreateView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        return Recipes.objects.filter(is_public=True)
+        recipe_id = self.kwargs.get('recipe_id')
+        return Comment.objects.filter(recipe_id=recipe_id)
 
+    def perform_create(self, serializer):
+        recipe_id = self.kwargs.get('recipe_id')
+        print(f"Recipe ID from URL: {recipe_id}")  # Log Recipe ID
+        
+        recipe = get_object_or_404(Recipes, id=recipe_id)
+        print(f"Fetched Recipe: {recipe.title}")   # Confirm Recipe Exists
 
+        # Verify if recipe is injected correctly
+        if self.request.user.is_authenticated:
+            print("Authenticated User Detected")
+            serializer.save(recipe=recipe, user=self.request.user)
+        else:
+            guest_name = self.request.data.get('guest_name')
+            print(f"Guest Name: {guest_name}")
+            if not guest_name:
+                raise serializers.ValidationError("Guest name is required for anonymous users.")
+            
+            guest_user = get_user_model().objects.get_or_create(username='guest_user')[0]
+            print(f"Guest User ID: {guest_user.id}")
+            serializer.save(recipe=recipe, user=guest_user, guest_name=guest_name)
 class RecipeDelete(generics.DestroyAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated]
@@ -467,25 +537,48 @@ class SharedRecipeListView(generics.ListAPIView):
     def get_queryset(self):
         return Recipes.objects.filter(is_public=True)
     
-class BlogListView(generics.ListAPIView):
+class BlogCreateview(generics.ListCreateAPIView):
     serializer_class = BlogSerializer
-    permission_classes = [AllowAny] 
+    permission_classes = [IsAuthenticated] 
     queryset = Blog.objects.filter(is_public=True)
-    parser_classes = (MultiPartParser, FormParser)  # Important for file uploads
+    parser_classes = (MultiPartParser, FormParser)
+    authentication_classes = [ JWTAuthentication] 
 
     def perform_create(self, serializer):
-        # Check if an image was uploaded
-        image = self.request.data.get('image')
+        user = self.request.user
+        if not user.is_authenticated:
+            raise PermissionDenied("You must be logged in to create a recipe")
         
-        # Save the recipe with the author and optional image
+        image = self.request.data.get('image')
         serializer.save(author=self.request.user, image=image)
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return Blog.objects.filter(author=user)
+        return Blog.objects.filter(is_public=True)
 
 class BlogDetailView(generics.RetrieveAPIView):
     serializer_class = BlogSerializer
     permission_classes = [AllowAny]  
-    queryset = Blog.objects.filter(is_public=True)
+    queryset = Blog.objects.all()
+    # authentication_classes = [JWTAuthentication]
 
+    def get_object(self):
+        obj = super().get_object()
+        user = self.request.user
+        if obj.is_public:
+            return obj
+        if user.is_authenticated and obj.author == user:
+            return obj
+        raise PermissionDenied("You don't have permission to view this recipe")
+class PublicBlogView(generics.ListAPIView):
+    serializer_class = BlogSerializer
+    # authentication_classes = [ JWTAuthentication] 
+    permission_classes = [AllowAny]
+    def get_queryset(self):
+        return Blog.objects.filter(is_public=True)
+    
 class MyBlogsView(generics.ListAPIView):
     serializer_class = BlogSerializer
     permission_classes = [IsAuthenticated]
