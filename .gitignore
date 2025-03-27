@@ -1,3 +1,15 @@
 env/
 db.sqlite3
 .env
+*.env
+
+# Migrations (Unfinished or temp files only)
+*.bak
+*.swp
+
+# Database files
+*.sqlite3
+
+# IDE & Editor settings
+.vscode/
+.idea/
